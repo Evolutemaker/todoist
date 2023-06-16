@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:todoist/constants/app_themes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:todoist/blocs/task/task_bloc.dart';
+import 'package:todoist/provider/theme/theme_provider.dart';
 import 'package:todoist/routes/app_router.dart';
 import 'package:todoist/routes/router_constants.dart';
 
@@ -12,7 +16,14 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider(context)),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,23 +31,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Builder(
-        builder: (BuildContext context) {
-          final Brightness systemBrightness =
-              MediaQuery.of(context).platformBrightness;
-          final isDarkMode = systemBrightness == Brightness.dark;
-
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            initialRoute: RouterName.homeRoute,
-            onGenerateRoute: AppRouter.generateRoute,
-            themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            theme: AppThemes.lightTheme,
-            darkTheme: AppThemes.darkTheme,
-          );
-        },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => TaskBloc()..add(const ReadTask()),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: RouterName.homeRoute,
+        onGenerateRoute: AppRouter.generateRoute,
+        themeMode: context.watch<ThemeProvider>().themeMode,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('ru', 'RU'),
+        ],
+        locale: const Locale('ru', 'RU'),
       ),
     );
   }
