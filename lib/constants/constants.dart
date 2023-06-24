@@ -1,14 +1,79 @@
+import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:todoist/constants/enums.dart';
+import 'package:todoist/constants/exception_messages.dart';
 import 'package:todoist/provider/theme/theme_provider.dart';
 
-Map<TaskPriority, String> priorityTitles = {
-  TaskPriority.no: 'Нет',
-  TaskPriority.low: 'Низкий',
-  TaskPriority.high: '!! Высокий',
+var logFile = File('exceptions/exceptions.log');
+
+Map<int, String> messageException = {
+  400: ExceptionMessages.complexExceptionMessage,
+  401: ExceptionMessages.wrongAuthExceptionMessage,
+  404: ExceptionMessages.noElementExceptionMessage,
+  500: ExceptionMessages.serverExceptionMessage,
 };
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+  output: FileOutput(
+    file: logFile,
+  ),
+);
+
+DateTime? getDateTimeFromTimestamp(int? timestamp) {
+  if (timestamp == null) {
+    return null;
+  } else {
+    return DateTime.fromMillisecondsSinceEpoch(timestamp);
+  }
+}
+
+int getTimestampFromDateTime(DateTime dateTime) {
+  return dateTime.millisecondsSinceEpoch;
+}
+
+String getUniqueDeviceId() {
+  final random = Random();
+  const String characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#%&'()*+,-./:;<=>?@[]^_`{|}~";
+
+  String deviceId = '';
+
+  for (int i = 0; i < 12; i++) {
+    final randomIndex = random.nextInt(characters.length);
+    deviceId += characters[randomIndex];
+  }
+
+  return deviceId;
+}
+
+String getUniqueTaskId(
+    {required String text,
+    required TaskPriority importance,
+    required int createdAt}) {
+  Random random = Random();
+  int randomNum = random.nextInt(100);
+  final mixedString = '$randomNum$text${importance.toString()}$createdAt';
+  final taskId = mixedString.hashCode.toUnsigned(32).toRadixString(16);
+
+  return taskId;
+}
+
+Map<TaskPriority, String> priorityTitles = {
+  TaskPriority.basic: 'Нет',
+  TaskPriority.low: 'Низкий',
+  TaskPriority.important: '!! Высокий',
+};
+
+String formatSelectedDate(int selectedDateTimestamp) {
+  DateTime dateTime =
+      DateTime.fromMillisecondsSinceEpoch(selectedDateTimestamp);
+  return DateFormat('dd MMMM yyyy', 'ru_RU').format(dateTime);
+}
 
 Future<DateTime?> targetDate(BuildContext context, {DateTime? pastDate}) async {
   DateTime? selectedDate = await showDialog(

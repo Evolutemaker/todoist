@@ -67,4 +67,6 @@ class ThemeProvider extends ChangeNotifier {
   Color get backElevated => isDarkMode
       ? ColorConstants.darkBackElevated
       : ColorConstants.lightBackElevated;
+
+  String get apiColor => isDarkMode ? "#000000" : "#FFFFFF";
 }

@@ -1,5 +1,13 @@
 enum TaskPriority {
-  no,
+  basic,
   low,
-  high,
+  important,
+}
+
+enum ExceptionType {
+  network,
+  poorRequestOrUrlOrRevisionCollision,
+  wrongAuth,
+  noElementFoundOnServer,
+  serverIssue,
 }

@@ -1,277 +1,92 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:todoist/blocs/task/task_bloc.dart';
-import 'package:todoist/constants/color_constants.dart';
 import 'package:todoist/constants/constants.dart';
-import 'package:todoist/constants/enums.dart';
-import 'package:todoist/constants/font_constants.dart';
-import 'package:todoist/models/task/task_model.dart';
+import 'package:todoist/models/task_model/task_model.dart';
+import 'package:todoist/provider/date/date_provider.dart';
+import 'package:todoist/provider/priority/priority_provider.dart';
+import 'package:todoist/provider/status/status_provider.dart';
+import 'package:todoist/provider/task_text/task_text_provider.dart';
 import 'package:todoist/provider/theme/theme_provider.dart';
+import 'package:todoist/widgets/appbars/new_task_appbar.dart';
 import 'package:todoist/widgets/buttons/delete_button.dart';
+import 'package:todoist/widgets/custom_textformfield.dart';
+import 'package:todoist/widgets/due_date_layout.dart';
+import 'package:todoist/widgets/priority_layout.dart';
 
 class NewTaskScreen extends StatefulWidget {
-  const NewTaskScreen({super.key});
+  const NewTaskScreen({super.key, this.taskModel});
+
+  final TaskModel? taskModel;
 
   @override
   State<NewTaskScreen> createState() => _NewTaskScreenState();
 }
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
-
-  final TextEditingController _taskTextController = TextEditingController();
-
   bool _showShadow = false;
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  bool isSwitch = false;
-
-  bool isDeleteActive = false;
-
-  TaskPriority priority = TaskPriority.no;
-
-  DateTime? selectedDate;
 
   @override
   Widget build(BuildContext context) {
     final colorProvider = context.watch<ThemeProvider>();
 
+    if (widget.taskModel != null) {
+      context.read<TaskTextProvider>().setTaskText = widget.taskModel!.text;
+
+      context.read<PriorityProvider>().setTaskPriority =
+          widget.taskModel!.importance;
+
+      context.read<DateProvider>().setDate =
+          getDateTimeFromTimestamp(widget.taskModel!.deadline);
+
+      context.read<StatusProvider>().setTaskStatus = widget.taskModel!.done;
+
+
+      // TaskModel newTask = TaskModel(
+      //         id: getUniqueTaskId(
+      //             text: taskText, importance: priority, createdAt: watchDateProvider.taskCreationTime),
+      //         color: colorProvider.apiColor,
+      //         created_at: watchDateProvider.taskCreationTime,
+      //         changed_at: watchDateProvider.taskChangedTime,
+      //         last_updated_by: 'test',
+      //       );
+    }
+
     _scrollController.addListener(() {
-      setState(() {
-        _scrollController.offset > 0 ? _showShadow = true : _showShadow = false;
-      });
+      final shouldShowShadow = _scrollController.offset > 0;
+      if (shouldShowShadow != _showShadow) {
+        setState(() {
+          _showShadow = shouldShowShadow;
+        });
+      }
     });
 
-    return BlocListener<TaskBloc, TaskState>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
-      child: Scaffold(
-        backgroundColor: colorProvider.backPrimary,
-        appBar: AppBar(
-          backgroundColor: colorProvider.backPrimary,
-          elevation: _showShadow ? 4 : 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: IconButton(
-              icon: Icon(
-                Icons.close,
-                size: 24,
-                color: colorProvider.labelPrimary,
+    return Scaffold(
+      backgroundColor: colorProvider.backPrimary,
+      appBar: NewTaskAppBar(showShadow: _showShadow),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        controller: _scrollController,
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const CustomTextFormField(),
+              const PriorityLayout(),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Divider(),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: TextButton(
+              const DueDateLayout(),
+              const Divider(),
+              DeleteButton(
                 onPressed: () {
-                  TaskModel newTask = TaskModel(
-                    text: _taskTextController.text,
-                    priority: priority,
-                    date: selectedDate,
-                  );
-
-                  context.read<TaskBloc>().add(CreateTask(task: newTask));
-
-                  Navigator.pop(context);
+                  //TODO: Delete task logic
                 },
-                child: TextWidget(
-                  text: 'СОХРАНИТЬ',
-                  style: FontConstants.button,
-                  color: colorProvider.blue,
-                ),
               ),
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          controller: _scrollController,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
-                        offset: const Offset(0, 2),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        offset: const Offset(0, 2),
-                        blurRadius: 2.0,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: TextFormField(
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Пожалуйста, введите вашу задачу';
-                      }
-                      return null;
-                    },
-                    controller: _taskTextController,
-                    // onChanged: (value) {
-                    //   //value.length
-                    // },
-                    style: FontConstants.body.copyWith(
-                      color: colorProvider.labelPrimary,
-                    ),
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      hintText: 'Что надо сделать...',
-                      hintStyle: FontConstants.body.copyWith(
-                        color: colorProvider.labelTertiary,
-                      ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      counterText: '',
-                      contentPadding: const EdgeInsets.all(16),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextWidget(
-                            text: 'Важность',
-                            style: FontConstants.body,
-                            color: colorProvider.labelPrimary,
-                          ),
-                          const SizedBox(height: 4),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton<TaskPriority>(
-                              value: priority,
-                              style: FontConstants.subhead.copyWith(
-                                color: colorProvider.labelTertiary,
-                              ),
-                              onChanged: (chosenPriority) {
-                                setState(() {
-                                  priority = chosenPriority ?? TaskPriority.no;
-                                });
-                              },
-                              isDense: true,
-                              alignment: Alignment.centerLeft,
-                              items: priorityTitles.entries
-                                  .map<DropdownMenuItem<TaskPriority>>((entry) {
-                                return DropdownMenuItem<TaskPriority>(
-                                  value: entry.key,
-                                  child: TextWidget(
-                                    text: entry.value,
-                                    style: FontConstants.body,
-                                    color: entry.key == TaskPriority.high
-                                        ? colorProvider.red
-                                        : colorProvider.labelPrimary,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Divider(),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextWidget(
-                            text: 'Сделать до',
-                            style: FontConstants.body,
-                            color: colorProvider.labelPrimary,
-                          ),
-                          isSwitch
-                              ? GestureDetector(
-                                  onTap: () {},
-                                  child: Container(
-                                    margin: const EdgeInsets.only(top: 4),
-                                    child: TextWidget(
-                                      text: '2 июня 2021',
-                                      style: FontConstants.body,
-                                      color: colorProvider.blue,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox(),
-                        ],
-                      ),
-                      Switch(
-                        value: isSwitch,
-                        activeColor: ColorConstants.lightBlue,
-                        activeTrackColor:
-                            ColorConstants.lightBlue.withOpacity(0.3),
-                        inactiveTrackColor: ColorConstants.lightSupportOverlay,
-                        inactiveThumbColor: ColorConstants.lightBackElevated,
-                        onChanged: (value) async {
-                          setState(() {
-                            isSwitch = value;
-                          });
-
-                          if (isSwitch) {
-                            selectedDate = await targetDate(context);
-                          } else {
-                            selectedDate = null;
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                DeleteButton(
-                  isActive: isSwitch,
-                  onPressed: () {},
-                ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

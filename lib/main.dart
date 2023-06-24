@@ -4,6 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:todoist/blocs/task/task_bloc.dart';
+import 'package:todoist/constants/enums.dart';
+import 'package:todoist/provider/date/date_provider.dart';
+import 'package:todoist/provider/priority/priority_provider.dart';
+import 'package:todoist/provider/status/status_provider.dart';
+import 'package:todoist/provider/switch/switch_provider.dart';
+import 'package:todoist/provider/task_text/task_text_provider.dart';
 import 'package:todoist/provider/theme/theme_provider.dart';
 import 'package:todoist/routes/app_router.dart';
 import 'package:todoist/routes/router_constants.dart';
@@ -20,6 +26,11 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider(context)),
+        ChangeNotifierProvider(create: (_) => DateProvider()),
+        ChangeNotifierProvider(create: (_) => PriorityProvider()),
+        ChangeNotifierProvider(create: (_) => SwitchProvider()),
+        ChangeNotifierProvider(create: (_) => TaskTextProvider()),
+        ChangeNotifierProvider(create: (_) => StatusProvider()),
       ],
       child: const MyApp(),
     ),
@@ -31,28 +42,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => TaskBloc()..add(const ReadTask()),
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: RouterName.homeRoute,
+      onGenerateRoute: AppRouter.generateRoute,
+      themeMode: context.watch<ThemeProvider>().themeMode,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: RouterName.homeRoute,
-        onGenerateRoute: AppRouter.generateRoute,
-        themeMode: context.watch<ThemeProvider>().themeMode,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', 'US'),
-          Locale('ru', 'RU'),
-        ],
-        locale: const Locale('ru', 'RU'),
-      ),
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('ru', 'RU'),
+      ],
+      locale: const Locale('ru', 'RU'),
     );
   }
 }

@@ -44,17 +44,21 @@ class TextWidget extends StatelessWidget {
     required this.color,
     required this.style,
     this.textAlign,
+    this.decoration,
   });
+
   final Color color;
   final String text;
   final TextStyle style;
   final TextAlign? textAlign;
+  final TextDecoration? decoration;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
       style: style.copyWith(
         color: color,
+        decoration: decoration,
       ),
       child: Text(
         text,
