@@ -1,16 +1,13 @@
 # todoist
 
-A new Flutter project.
+To-do list mobile app
 
-## Getting Started
+## Link to the app
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+A link to get access to the app:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- [todoist](https://drive.google.com/drive/folders/1QS3wx-_gOt8eOSy01Gf8vLAesZ0iCgwf?usp=share_link)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+*The app is not fully completed. There is no work with backend, and local storage usage. The repository and data layers are completed.
