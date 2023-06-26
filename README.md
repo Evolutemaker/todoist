@@ -4,8 +4,6 @@ To-do list mobile app
 
 ## Link to the app
 
-This project is a starting point for a Flutter application.
-
 A link to get access to the app:
 
 - [todoist](https://drive.google.com/drive/folders/1QS3wx-_gOt8eOSy01Gf8vLAesZ0iCgwf?usp=share_link)
