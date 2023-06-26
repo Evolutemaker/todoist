@@ -13,7 +13,7 @@ class AppRouter {
           builder: (_) => const HomeScreen(),
         );
       case RouterName.newTaskRoute:
-        final args = settings.arguments as TaskModel;
+        final args = settings.arguments as TaskModel?;
         return MaterialPageRoute(
           builder: (_) =>  NewTaskScreen(taskModel: args),
         );

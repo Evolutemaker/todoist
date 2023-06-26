@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:todoist/blocs/task/task_bloc.dart';
-import 'package:todoist/constants/enums.dart';
 import 'package:todoist/provider/date/date_provider.dart';
 import 'package:todoist/provider/priority/priority_provider.dart';
 import 'package:todoist/provider/status/status_provider.dart';

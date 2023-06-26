@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todoist/constants/color_constants.dart';
-import 'package:todoist/constants/constants.dart';
-import 'package:todoist/provider/date/date_provider.dart';
 import 'package:todoist/provider/switch/switch_provider.dart';
 
 class CustomSwitch extends StatelessWidget {
@@ -12,8 +10,6 @@ class CustomSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSwitch = context.watch<SwitchProvider>().isSwitch;
     final readSwitchProvider = context.read<SwitchProvider>();
-    final readDateProvider = context.read<DateProvider>();
-    final selectedDate = context.watch<DateProvider>().selectedDate;
 
     return Switch(
       value: isSwitch,
@@ -23,15 +19,6 @@ class CustomSwitch extends StatelessWidget {
       inactiveThumbColor: ColorConstants.lightBackElevated,
       onChanged: (value) async {
         readSwitchProvider.setSwitch = value;
-
-        if (isSwitch) {
-          readDateProvider.setDate = await targetDate(
-            context,
-            pastDate: selectedDate,
-          );
-        } else {
-          readDateProvider.setDate = null;
-        }
       },
     );
   }
