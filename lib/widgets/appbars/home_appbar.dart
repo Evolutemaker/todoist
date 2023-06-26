@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todoist/constants/constants.dart';
 import 'package:todoist/constants/font_constants.dart';
 import 'package:todoist/provider/theme/theme_provider.dart';
 
@@ -9,6 +10,17 @@ class HomeAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorProvider = context.watch<ThemeProvider>();
+    generateDeviceId();
+
+    String devais = '';
+    // Future.delayed(
+    //   const Duration(seconds: 3),
+    //   () async {
+    //     devais = await getDeviceIdFromLocalStorage();
+
+    //     print(devais);
+    //   },
+    // );
 
     return SliverAppBar(
       backgroundColor: colorProvider.backPrimary,
@@ -19,7 +31,7 @@ class HomeAppBar extends StatelessWidget {
       elevation: 4,
       leading: const SizedBox(),
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsetsDirectional.only(bottom: 16, start: 0),
+        titlePadding: const EdgeInsets.only(bottom: 16, left: 16),
         expandedTitleScale: 32 / 20,
         title: TextWidget(
           text: 'Мои дела',

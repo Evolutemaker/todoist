@@ -23,6 +23,7 @@ dependencies:
   json_annotation: ^4.8.1
   http: ^0.13.6
   logger: ^1.4.0
+  shared_preferences: ^2.1.2
 
 dev_dependencies:
   flutter_test:

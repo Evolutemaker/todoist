@@ -4,11 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoist/constants/enums.dart';
 import 'package:todoist/constants/exception_messages.dart';
 import 'package:todoist/provider/theme/theme_provider.dart';
 
 var logFile = File('exceptions/exceptions.log');
+
+Future<String> getDeviceIdFromLocalStorage() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  final String deviceId = prefs.getString('device') ?? 'ND';
+
+  return deviceId;
+}
+
+Future<void> generateDeviceId() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? deviceId = prefs.getString('device');
+
+  if (deviceId == null) {
+    await prefs.setString('device', getUniqueDeviceId());
+  }
+}
 
 Map<int, String> messageException = {
   400: ExceptionMessages.complexExceptionMessage,
