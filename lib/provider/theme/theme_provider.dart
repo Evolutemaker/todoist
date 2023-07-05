@@ -68,5 +68,20 @@ class ThemeProvider extends ChangeNotifier {
       ? ColorConstants.darkBackElevated
       : ColorConstants.lightBackElevated;
 
+  List<BoxShadow> get shadow => [
+        BoxShadow(
+          offset: const Offset(0, 2),
+          blurRadius: 2,
+          spreadRadius: 0,
+          color: Colors.black.withOpacity(0.12),
+        ),
+        BoxShadow(
+          offset: const Offset(0, 0),
+          blurRadius: 2,
+          spreadRadius: 0,
+          color: Colors.black.withOpacity(0.06),
+        ),
+      ];
+
   String get apiColor => isDarkMode ? "#000000" : "#FFFFFF";
 }
